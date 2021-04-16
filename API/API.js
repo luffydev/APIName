@@ -17,6 +17,7 @@ function initAPI()
 
     function checkAPIKey(pRequest, pRes, pNext)
     {
+        pRes.setHeader('X-Powered-By', 'Storm');
 
         var lCookies = readCookies(pRequest);
 
