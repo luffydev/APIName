@@ -7,6 +7,11 @@ function getDatabaseFromLocalization(pLocate)
 {
     switch(pLocate.toLowerCase())
     {
+
+        case 'uk':
+            return 'uk';
+        break;
+
         case 'spain':
             return 'spain';
         break;
