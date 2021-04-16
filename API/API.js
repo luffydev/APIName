@@ -1,12 +1,15 @@
 var lAPP = null;
+const lCompression = require('compression');
 var lConfig = require('./../config');
 const expressAPI = require('express');
 var jwt = require('jsonwebtoken');
 const port = 35466;
 var Routes = require('./routes');
+const compression = require('compression');
 
 function initAPI()
 {
+    lAPP.use(lCompression());
     lAPP.use(expressAPI.query());
 
     lAPP.post('*', checkAPIKey);
@@ -17,7 +20,7 @@ function initAPI()
 
     function checkAPIKey(pRequest, pRes, pNext)
     {
-        pRes.setHeader('X-Powered-By', 'Storm');
+        pRes.setHeader('X-Powered-By', 'test');
 
         var lCookies = readCookies(pRequest);
 

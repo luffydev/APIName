@@ -3,13 +3,14 @@ const lTwig = require('twig');
 const app = express();
 const port = 35465;
 const lFS = require('fs');
+const lCompression = require('compression');
 var path = require('path');
 
 var API = require('./API/API');
 
 API.init(app);
 
-
+app.use(lCompression());
 app.use(express.query());
 
 app.set('views', path.join(__dirname, '/Templates'));
