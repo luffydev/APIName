@@ -27,9 +27,15 @@ function PgHelper()
         else
         {
             mPoolPtr.query(pQuery, pValue, function(pError, pRes)
-            {
+            {                
+                if(typeof pRes != 'undefined')
+                    pRes['current_query'] = pQuery;
+
                 if(pError)
+                {
+                    console.log(pError);
                     lDefered.reject("Invalid request, ", pError);
+                }
                 else
                     lDefered.resolve(pRes);
             });

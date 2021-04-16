@@ -23,6 +23,12 @@ function getDatabaseFromLocalization(pLocate)
     }
 }
 
+function StoreCurrentQuery(pQuery, pResult, pTable)
+{
+    lAPP.database.query("INSERT INTO request_history VALUES( nextval('request_history_id_seq'::regclass), $1, $2, $3 );",
+                         [pQuery, pTable, JSON.stringify(pResult)]);
+}
+
 function initRoutes()
 {
     lAPP.post('/API/getByName', (pRequest, pRes) =>
@@ -32,6 +38,12 @@ function initRoutes()
             pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
             return;
         }
+
+        var lStore = false;
+
+        if('store' in pRequest.body && parseInt(pRequest.body.store) == 1)
+            lStore = true;
+        
 
         var lNom = pRequest.body.nom;
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
@@ -43,6 +55,9 @@ function initRoutes()
                 pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'empty set'}));
                 return;
             }
+
+            if(lStore)
+                StoreCurrentQuery(pResult.current_query, pResult.rows, lFrom);
 
             var lJson = {'success' : true, 'count' : pResult.rowCount};
 
@@ -60,6 +75,11 @@ function initRoutes()
             return;
         }
 
+        var lStore = false;
+
+        if('store' in pRequest.body && parseInt(pRequest.body.store) == 1)
+            lStore = true;
+
         var lPrenom = pRequest.body.prenom;
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
@@ -70,6 +90,9 @@ function initRoutes()
                 pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'empty set'}));
                 return;
             }
+
+            if(lStore)
+                StoreCurrentQuery(pResult.current_query, pResult.rows, lFrom);
 
             var lJson = {'success' : true, 'count' : pResult.rowCount};
 
@@ -87,6 +110,11 @@ function initRoutes()
             return;
         }
 
+        var lStore = false;
+
+        if('store' in pRequest.body && parseInt(pRequest.body.store) == 1)
+            lStore = true;
+
         var lPrenom = pRequest.body.prenom;
         var lNom = pRequest.body.nom;
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
@@ -98,6 +126,9 @@ function initRoutes()
                 pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'empty set'}));
                 return;
             }
+
+            if(lStore)
+                StoreCurrentQuery(pResult.current_query, pResult.rows, lFrom);
 
             var lJson = {'success' : true, 'count' : pResult.rowCount};
 
@@ -115,6 +146,11 @@ function initRoutes()
             return;
         }
 
+        var lStore = false;
+
+        if('store' in pRequest.body && parseInt(pRequest.body.store) == 1)
+            lStore = true;
+
         var lNumber = pRequest.body.numero;
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
@@ -126,6 +162,9 @@ function initRoutes()
                 return;
             }
 
+            if(lStore)
+                StoreCurrentQuery(pResult.current_query, pResult.rows, lFrom);
+
             var lJson = {'success' : true, 'count' : pResult.rowCount};
 
             lJson['data'] = pResult.rows;
@@ -135,6 +174,23 @@ function initRoutes()
         }).catch(function(pTest, pError)
         {
             console.log(pError);
+        });
+    });
+
+    lAPP.post('/API/getStoredRequest', (pRequest, pRes) => 
+    {
+        lAPP.database.query("SELECT * FROM request_history").then( (pResult) => 
+        {
+            if(!pResult.rowCount)
+            {
+                pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'empty set'}));
+                return;
+            }
+
+            var lJson = {'success' : true, 'count' : pResult.rowCount, 'data' : pResult.rows};
+
+            pRes.status(200).send(JSON.stringify(lJson));
+
         });
     });
 }
