@@ -3,19 +3,35 @@ const expressAPI = require('express');
 var lConfig = require('./../config');
 var bodyParser = require('body-parser');
 
+function getDatabaseFromLocalization(pLocate)
+{
+    switch(pLocate.toLowerCase())
+    {
+        case 'spain':
+            return 'spain';
+        break;
+
+        case 'france':
+        default:
+            return 'france_2';
+        break;
+    }
+}
+
 function initRoutes()
 {
     lAPP.post('/API/getByName', (pRequest, pRes) =>
     {
-        if(!('nom' in pRequest.body))
+        if(!('nom' in pRequest.body) || !('from' in pRequest.body))
         {
             pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
             return;
         }
 
         var lNom = pRequest.body.nom;
+        var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM france_2 WHERE LOWER(nom) LIKE '%"+lNom+"%'").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%'").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
@@ -33,15 +49,16 @@ function initRoutes()
 
     lAPP.post('/API/getBySubName', (pRequest, pRes) =>
     {
-        if(!('prenom' in pRequest.body))
+        if(!('prenom' in pRequest.body) || !('from' in pRequest.body))
         {
             pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
             return;
         }
 
         var lPrenom = pRequest.body.prenom;
+        var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM france_2 WHERE LOWER(prenom) LIKE '%"+lPrenom+"%'").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(prenom) LIKE '%"+lPrenom+"%'").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
@@ -59,7 +76,7 @@ function initRoutes()
 
     lAPP.post('/API/getByNameAndSubName', (pRequest, pRes) =>
     {
-        if(!('prenom' in pRequest.body) && !('nom' in pRequest.body))
+        if(!('prenom' in pRequest.body) && !('nom' in pRequest.body) || !('from' in pRequest.body))
         {
             pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
             return;
@@ -67,8 +84,9 @@ function initRoutes()
 
         var lPrenom = pRequest.body.prenom;
         var lNom = pRequest.body.nom;
+        var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM france_2 WHERE LOWER(nom) LIKE '%"+lNom+"%' AND LOWER(prenom) LIKE '%"+lPrenom+"%' ").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%' AND LOWER(prenom) LIKE '%"+lPrenom+"%' ").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
@@ -86,15 +104,16 @@ function initRoutes()
 
     lAPP.post('/API/getByNumber', (pRequest, pRes) =>
     {
-        if(!('numero' in pRequest.body))
+        if(!('numero' in pRequest.body) || !('from' in pRequest.body))
         {
             pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
             return;
         }
 
         var lNumber = pRequest.body.numero;
+        var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM france_2 WHERE LOWER(num) LIKE '%"+lNumber+"%'  ").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(num) LIKE '%"+lNumber+"%'  ").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
