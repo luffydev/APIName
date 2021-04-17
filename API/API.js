@@ -24,7 +24,7 @@ function initAPI()
     {
         pRes.setHeader("Access-Control-Allow-Origin", "*");
         pRes.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
-        pRes.setHeader('X-Powered-By', 'Storme');
+        pRes.setHeader('X-Powered-By', 'Storm');
         pRes.setHeader('Content-Type', 'application/json');
 
         if(!pRequest.headers.authorization)
@@ -32,14 +32,13 @@ function initAPI()
         else
         {
             var lAuth = pRequest.headers.authorization.replace("Basic ", "");
-            lAuthCookie = jwt.decode(lAuth.replace("Basic "), lConfig.SIGNED_COOKIE_SECRET);            
+            lAuthCookie = jwt.decode(lAuth, lConfig.SIGNED_COOKIE_SECRET);            
 
             if(!lAuthCookie || !('key' in lAuthCookie) || !(lConfig.API_KEYS.includes(lAuthCookie.key)) )
                 pRes.status(401).send(JSON.stringify({'error' : 'unauthorized'}));
             else
                 pNext();
         }
-        
     }
 }
 
