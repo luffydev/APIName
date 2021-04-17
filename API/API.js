@@ -22,6 +22,8 @@ function initAPI()
 
     function checkAPIKey(pRequest, pRes, pNext)
     {
+        pRes.setHeader("Access-Control-Allow-Origin", "*");
+        pRes.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
         pRes.setHeader('X-Powered-By', 'Storm');
         pRes.setHeader('Content-Type', 'application/json');
 
