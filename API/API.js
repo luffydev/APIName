@@ -1,4 +1,3 @@
-var lAPP = null;
 const lCompression = require('compression');
 var lConfig = require('./../config');
 const expressAPI = require('express');
@@ -7,6 +6,7 @@ const port = 35466;
 var Routes = require('./routes');
 var lCors = require('cors');
 
+lAPP = expressAPI();
 
 function initAPI()
 {
@@ -63,7 +63,8 @@ function initAPI()
 module.exports = {
     init:function(pObject)
     {
-        lAPP = pObject;
+        if(lAPP == null)
+            lAPP = pObject; 
 
         lAPP.database = require('./../SDK/PgHelper/PgHelper');
         lAPP.database.connect(lConfig.POSTGRES.host, lConfig.POSTGRES.user, lConfig.POSTGRES.password, lConfig.POSTGRES.database, lConfig.POSTGRES.port);
