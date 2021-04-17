@@ -5,11 +5,13 @@ const expressAPI = require('express');
 var jwt = require('jsonwebtoken');
 const port = 35466;
 var Routes = require('./routes');
-const compression = require('compression');
+var lCors = require('cors');
+
 
 function initAPI()
 {
     lAPP.use(lCompression());
+    lAPP.use(lCors());
     lAPP.use(expressAPI.query());
 
     lAPP.post('*', checkAPIKey);
