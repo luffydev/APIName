@@ -24,38 +24,22 @@ function initAPI()
     {
         pRes.setHeader("Access-Control-Allow-Origin", "*");
         pRes.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
-        pRes.setHeader('X-Powered-By', 'Storm');
+        pRes.setHeader('X-Powered-By', 'Storme');
         pRes.setHeader('Content-Type', 'application/json');
 
-        var lCookies = readCookies(pRequest);
-
-        if(!('auth' in lCookies))
-            pRes.status(401).send(JSON.stringify({'error' : 'Failed auth'}));
+        if(!pRequest.headers.authorization)
+            return pRes.status(401).send(JSON.stringify({'error' : 'unauthorized'}));
         else
         {
-            lAuthCookie = jwt.decode(lCookies['auth'], lConfig.SIGNED_COOKIE_SECRET);
-            
+            var lAuth = pRequest.headers.authorization.replace("Basic ", "");
+            lAuthCookie = jwt.decode(lAuth.replace("Basic "), lConfig.SIGNED_COOKIE_SECRET);            
 
-            if(!('key' in lAuthCookie) || !(lConfig.API_KEYS.includes(lAuthCookie.key)) )
-                pRes.status(401).send(JSON.stringify({'error' : 'Failed auth'}));
+            if(!lAuthCookie || !('key' in lAuthCookie) || !(lConfig.API_KEYS.includes(lAuthCookie.key)) )
+                pRes.status(401).send(JSON.stringify({'error' : 'unauthorized'}));
             else
                 pNext();
         }
         
-    }
-
-    function readCookies(pRequest)
-    {
-        var lCookies = {};
-
-        pRequest.headers && pRequest.headers.cookie.split(';').forEach(function(cookie) {
-
-            var parts = cookie.match(/(.*?)=(.*)$/)
-            lCookies[ parts[1].trim() ] = (parts[2] || '').trim();
-
-          });
-
-          return lCookies;
     }
 }
 
