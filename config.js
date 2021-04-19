@@ -9,5 +9,12 @@ module.exports = {
       password: '',
       database: 'maxime',
       port: 5432,
+  },
+  
+  WHATSAPP : {
+    url : 'https://webservice.checkwa.com/',
+    user : 'kwizfreak',
+    key : '812cd6-48cce5-62f887-7bf286-01e9c4'
   }
+
 };

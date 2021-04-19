@@ -2,6 +2,7 @@ var lAPP = null;
 const expressAPI = require('express');
 var lConfig = require('./../config');
 var bodyParser = require('body-parser');
+const WhatsApp = require('./../SDK/WhatsApp/WhatsApp');
 
 function getDatabaseFromLocalization(pLocate)
 {
@@ -192,6 +193,41 @@ function initRoutes()
             pRes.status(200).send(JSON.stringify(lJson));
 
         });
+    });
+
+    lAPP.post('/API/getWhatsAppStatus', (pRequest, pRes) =>
+    {
+        if(!('numero' in pRequest.body) || !('from' in pRequest.body))
+        {
+            pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
+            return;
+        }
+
+        var lNumber = pRequest.body.numero.replace(/\s/g, '');
+        
+        var lCode = lNumber.substring(0, 2);
+        var lNumber = lNumber.substring(2);
+
+        if(isNaN(parseInt(lCode)))
+        {
+            pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid number'}));
+            return;
+        }
+
+        WhatsApp.getWhatsAppStatus(lCode, lNumber).then( (pResult) => 
+        {
+            
+            if(!pResult)
+            {
+                pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'not found'}));
+                return;
+            }
+
+            var lJson = {'success' : true};
+            lJson['data'] = pResult;
+
+            pRes.status(200).send(JSON.stringify(lJson));
+        })
     });
 }
 
