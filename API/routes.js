@@ -45,7 +45,7 @@ function initRoutes()
             lStore = true;
         
 
-        var lNom = pRequest.body.nom;
+        var lNom = pRequest.body.nom.toLowerCase();
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
         lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%'").then(function(pResult)
@@ -115,8 +115,8 @@ function initRoutes()
         if('store' in pRequest.body && parseInt(pRequest.body.store) == 1)
             lStore = true;
 
-        var lPrenom = pRequest.body.prenom;
-        var lNom = pRequest.body.nom;
+        var lPrenom = pRequest.body.prenom.toLowerCase();
+        var lNom = pRequest.body.nom.toLowerCase();
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
         lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%' AND LOWER(prenom) LIKE '%"+lPrenom+"%' ").then(function(pResult)
