@@ -49,7 +49,7 @@ function initRoutes()
         var lNom = pRequest.body.nom.toLowerCase();
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%'").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%' ORDER BY id ASC").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
@@ -84,7 +84,7 @@ function initRoutes()
         var lPrenom = pRequest.body.prenom;
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(prenom) LIKE '%"+lPrenom+"%'").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(prenom) LIKE '%"+lPrenom+"%' ORDER BY nom ASC ").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
@@ -120,7 +120,7 @@ function initRoutes()
         var lNom = pRequest.body.nom.toLowerCase();
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%' AND LOWER(prenom) LIKE '%"+lPrenom+"%' ").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(nom) LIKE '%"+lNom+"%' AND LOWER(prenom) LIKE '%"+lPrenom+"%' ORDER BY nom ASC ").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
@@ -155,7 +155,7 @@ function initRoutes()
         var lNumber = pRequest.body.numero;
         var lFrom = getDatabaseFromLocalization(pRequest.body.from);
 
-        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(num) LIKE '%"+lNumber+"%'  ").then(function(pResult)
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE LOWER(num) LIKE '%"+lNumber+"%' ORDER BY nom ASC ").then(function(pResult)
         {
             if(!pResult.rowCount)
             {
@@ -197,7 +197,7 @@ function initRoutes()
 
     lAPP.post('/API/getWhatsAppStatus', (pRequest, pRes) =>
     {
-        if(!('numero' in pRequest.body) || !('from' in pRequest.body))
+        if(!('numero' in pRequest.body))
         {
             pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
             return;
@@ -228,6 +228,58 @@ function initRoutes()
 
             pRes.status(200).send(JSON.stringify(lJson));
         })
+    });
+
+    lAPP.post('/API/setFavorite', (pRequest, pRes) => {
+
+        if(!('id' in pRequest.body) || !('from' in pRequest.body) || !('value' in pRequest.body))
+        {
+            pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
+            return;
+        }
+
+        var lID = parseInt(pRequest.body.id);
+        var lValue = (pRequest.body.value) == true;
+        var lFrom = getDatabaseFromLocalization(pRequest.body.from);
+
+        if(isNaN(lID))
+        {
+            pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request variables'}));
+            return;
+        }
+
+        lAPP.database.query("UPDATE " + lFrom + " SET is_favorite = $1 WHERE id = $2", [lValue, lID]).then((pResult) => {          
+        });
+
+        pRes.status(200).send(JSON.stringify({'success' : true}));
+    });
+
+    lAPP.post('/API/loadFavorite', (pRequest, pRes) => {
+
+        if(! ('from' in pRequest.body) )
+        {
+            pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
+            return;
+        }
+
+        var lFrom = getDatabaseFromLocalization(pRequest.body.from);
+
+        lAPP.database.query("SELECT * FROM " + lFrom + " WHERE is_favorite = true ORDER BY id ASC").then((pResult) => {
+            
+            if(!pResult.rowCount)
+            {
+                pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'empty set'}));
+                return;
+            }
+
+            var lJson = {"success" : true, "count" : pResult.rowCount, "data" : pResult.rows};
+
+            pRes.status(200).send(JSON.stringify(lJson));
+
+            return;
+
+        });
+
     });
 }
 
