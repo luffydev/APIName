@@ -50,7 +50,7 @@ function initAPI()
             var lSession = jwt.decode(lAuth, lConfig.SESSION.encrypt_key);
             var lContext = { request : pRequest, app : lAPP };
 
-            if('session' in lSession)
+            if(lSession && 'session' in lSession)
             {
                 Session.getSession(lSession.session, lContext).then((pResult) => 
                 {

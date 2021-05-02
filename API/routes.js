@@ -54,8 +54,8 @@ function initRoutes()
             var lContext = { request : pRequest, app : lAPP };
 
             lSession = JsonWebToken.decode(lSession, lConfig.SESSION.encrypt_key);
-            
-            if('session' in lSession)
+
+            if(lSession && 'session' in lSession)
             {
                 Session.getSession(lSession.session, lContext).then((pResult) => 
                 {
