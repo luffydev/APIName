@@ -69,6 +69,9 @@ function Session()
 
     this.getRemoteAddr = function(pRequest)
     {
+        if('request' in pRequest)
+            pRequest['headers'] = pRequest.request.headers;
+
         if('headers' in pRequest)
         {
             if(!('remote_addr' in pRequest.headers))
