@@ -1,5 +1,9 @@
 const lCompression = require('compression');
 var lConfig = require('./../config');
+
+global.redis = require('../SDK/Redis/Redis');
+
+const Session = require('./../SDK/Session/Session');
 const expressAPI = require('express');
 var jwt = require('jsonwebtoken');
 const port = 35466;
@@ -7,6 +11,11 @@ var Routes = require('./routes');
 var lCors = require('cors');
 
 lAPP = expressAPI();
+
+function sendUnauthorized(pRes)
+{
+    return pRes.status(401).send(JSON.stringify({'error' : 'unauthorized'}));
+}
 
 function initAPI()
 {
@@ -22,25 +31,42 @@ function initAPI()
 
     function checkAPIKey(pRequest, pRes, pNext)
     {
+        if(pRequest.path.indexOf("checkSession") != -1 || pRequest.path.indexOf("sendCredential") != -1)
+        {
+            pNext();
+            return;
+        }
+
         pRes.setHeader("Access-Control-Allow-Origin", "*");
         pRes.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
         pRes.setHeader('X-Powered-By', 'Storm');
         pRes.setHeader('Content-Type', 'application/json');
 
         if(!pRequest.headers.authorization)
-            return pRes.status(401).send(JSON.stringify({'error' : 'unauthorized'}));
+            return sendUnauthorized(pRes);
         else
         {
             var lAuth = pRequest.headers.authorization.replace("Basic ", "");
-            lAuthCookie = jwt.decode(lAuth, lConfig.SIGNED_COOKIE_SECRET);            
+            var lSession = jwt.decode(lAuth, lConfig.SESSION.encrypt_key);
+            var lContext = { request : pRequest, app : lAPP };
 
-            if(!lAuthCookie || !('key' in lAuthCookie) || !(lConfig.API_KEYS.includes(lAuthCookie.key)) )
-                pRes.status(401).send(JSON.stringify({'error' : 'unauthorized'}));
-            else
-                pNext();
+            if('session' in lSession)
+            {
+                Session.getSession(lSession.session, lContext).then((pResult) => 
+                {
+                    if(pResult.state)
+                        pNext();
+                    else
+                        sendUnauthorized(pRes);
+                });
+            }else
+                sendUnauthorized(pRes);
         }
+
     }
 }
+
+/* OLD METHOD */
 
 
 module.exports = {

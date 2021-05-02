@@ -10,11 +10,26 @@ module.exports = {
       database: 'maxime',
       port: 5432,
   },
-  
+
   WHATSAPP : {
     url : 'https://webservice.checkwa.com/',
     user : 'kwizfreak',
     key : '812cd6-48cce5-62f887-7bf286-01e9c4'
+  },
+
+  REDIS : {
+    host : 'localhost',
+    port : 6379,
+    password : ""
+  },
+
+  SESSION : {
+    // Two day in milliseconds 
+    expire : 172800000,
+    encrypt_key : 'WaPmQ3xcWZP05v6IDFllUFYzm9giLOdN',
+
+    // do not change this ! 
+    password_salt : 'EUcz2ylEhc77x1zbfVoA6FoVFwhz6PbB'
   }
 
 };

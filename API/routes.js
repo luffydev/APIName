@@ -3,6 +3,8 @@ const expressAPI = require('express');
 var lConfig = require('./../config');
 var bodyParser = require('body-parser');
 const WhatsApp = require('./../SDK/WhatsApp/WhatsApp');
+const Session = require('./../SDK/Session/Session');
+var JsonWebToken = require('jsonwebtoken');
 
 function getDatabaseFromLocalization(pLocate)
 {
@@ -30,8 +32,99 @@ function StoreCurrentQuery(pQuery, pResult, pTable)
                          [pQuery, pTable, JSON.stringify(pResult)]);
 }
 
+function sendClientPayload(pRes)
+{
+    Session.generateSalt().then(( pPayload ) => {        
+        pRes.status(200).send(JSON.stringify({'success' : false, 'payload' : pPayload}));
+    });
+}
+
 function initRoutes()
 {
+
+    /*
+        SESSION HANDLER
+    */
+
+    lAPP.post('/API/checkSession', (pRequest, pRes) =>
+    {
+        if('session' in pRequest.body)
+        {
+            var lSession = pRequest.body.session;
+            var lContext = { request : pRequest, app : lAPP };
+
+            lSession = JsonWebToken.decode(lSession, lConfig.SESSION.encrypt_key);
+            
+            if('session' in lSession)
+            {
+                Session.getSession(lSession.session, lContext).then((pResult) => 
+                {
+                    if(!pResult.state)
+                    {
+                        sendClientPayload(pRes);
+                        return;
+
+                    }else
+                    {
+                        pRes.status(200).send(JSON.stringify({success : true}));
+                        return;
+                    }
+                })
+            }else
+                sendClientPayload(pRes);
+        }else
+            sendClientPayload(pRes);
+        
+       
+    });
+
+    lAPP.post('/API/sendCredential', (pRequest, pRes) => {
+
+        if(!('username' in pRequest.body) || !('password' in pRequest.body) || !('payload' in pRequest.body))
+        {
+            pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
+            return;
+        }
+
+        var lUsername = pRequest.body.username;
+        var lPassword = pRequest.body.password;
+        var lPayload = pRequest.body.payload;
+
+        lPassword = new Buffer(lPassword, 'hex').toString('utf8');
+        lPayload = new Buffer(lPayload, 'hex').toString('utf8');
+
+        var lContext = { request : pRequest, app : lAPP };
+
+        Session.checkCredential(lUsername, lPassword, lPayload, lContext).then((pResult) => 
+        {
+            var lState = pResult.state;
+
+            if(!lState)
+            {
+                pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'invalid credentials'}));
+                return;
+            }
+
+            var lAccountData = pResult.account;
+
+            var lSessionID = Session.storeSession(lAccountData, lContext);
+
+            var lSessionToken = JsonWebToken.sign(JSON.stringify({'session' : lSessionID}), lConfig.SESSION.encrypt_key);
+
+            pRes.status(200).send(JSON.stringify({'success' : true, 'session_id' : lSessionToken}));
+        });
+
+    });
+
+    lAPP.post('/API/heartbeatSession', (pRequest, pRes) =>
+    {
+        pRes.status(200).send(JSON.stringify({'success' : true}));
+    });
+
+    /* 
+        GLOBAL API CALL
+    */
+
     lAPP.post('/API/getByName', (pRequest, pRes) =>
     {
         if(!('nom' in pRequest.body) || !('from' in pRequest.body))
