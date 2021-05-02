@@ -25,7 +25,6 @@ function Session()
 
     this.logConnection = function(pUsername, pRemoteAddr, pStatus , pContext)
     {
-	console.log("LOG : ", pRemoteAddr);
         var lApp = pContext.app;
         lApp.database.query("INSERT INTO connection_logs(username, remote_addr, timestamp, status) VALUES ($1, $2, NOW(), $3)", [pUsername, pRemoteAddr, pStatus]);
     }
