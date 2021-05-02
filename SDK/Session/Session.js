@@ -25,6 +25,7 @@ function Session()
 
     this.logConnection = function(pUsername, pRemoteAddr, pStatus , pContext)
     {
+	console.log("LOG : ", pRemoteAddr);
         var lApp = pContext.app;
         lApp.database.query("INSERT INTO connection_logs(username, remote_addr, timestamp, status) VALUES ($1, $2, NOW(), $3)", [pUsername, pRemoteAddr, pStatus]);
     }
@@ -69,12 +70,12 @@ function Session()
 
     this.getRemoteAddr = function(pRequest)
     {
-        if('header' in pRequest)
+        if('headers' in pRequest)
         {
-            if(!('remote_addr' in pRequest.header))
-                pRequest.header['remote_addr'] = '127.0.0.1';
+            if(!('remote_addr' in pRequest.headers))
+                pRequest.headers['remote_addr'] = '127.0.0.1';
             
-            return pRequest.header.remote_addr;
+            return pRequest.headers.remote_addr;
         }
 
         return "127.0.0.1";
