@@ -116,11 +116,14 @@ function Session()
                 return;
             }
 
+            /* 
+            Disable this, TODO : debug this
+            
             if(lSessionData.data.last_ip != this.getRemoteAddr(pContext))
             {
                 lDefered.resolve({state: false});
                 return;
-            }
+            }*/
 
             lDefered.resolve({state: true, session: lSessionData.data})
         });
