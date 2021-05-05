@@ -271,6 +271,37 @@ function initRoutes()
         });
     });
 
+    lAPP.post('/API/getByID', (pRequest, pRes) =>
+    {
+        if(!('id' in pRequest.body) || !('from' in pRequest.body))
+        {
+            pRes.status(400).send(JSON.stringify({'success' : false, 'error' : 'invalid request'}));
+            return;
+        }
+
+        var lID = pRequest.body.id;
+        var lFrom = getDatabaseFromLocalization(pRequest.body.from);
+
+        lAPP.database.query("SELECT * FROM "+ lFrom +" WHERE fb_id = $1 ORDER BY nom ASC ", [lID]).then(function(pResult)
+        {
+            if(!pResult.rowCount)
+            {
+                pRes.status(404).send(JSON.stringify({'success' : false, 'error' : 'empty set'}));
+                return;
+            }
+
+            var lJson = {'success' : true, 'count' : pResult.rowCount};
+
+            lJson['data'] = pResult.rows;
+
+            pRes.status(200).send(JSON.stringify(lJson));
+
+        }).catch(function(pError)
+        {
+            console.log(pError);
+        });
+    });
+
     lAPP.post('/API/getStoredRequest', (pRequest, pRes) => 
     {
         lAPP.database.query("SELECT * FROM request_history").then( (pResult) => 
