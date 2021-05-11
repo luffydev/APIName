@@ -15,6 +15,10 @@ function getDatabaseFromLocalization(pLocate)
             return 'uk';
         break;
 
+        case 'usa':
+            return 'usa';
+        break;
+
         case 'spain':
             return 'spain';
         break;
