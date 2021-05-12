@@ -8,6 +8,13 @@ function Whatsapp()
 {
     this.getWhatsAppStatus = function(pCode, pNumber)
     {
+
+	if(pNumber.length == 9 && pCode.substring(0, 1) == '1')
+	{
+		pNumber = pCode.substring(1, 2) + '' + pNumber;
+		pCode = '01';
+	}
+
         var lForm = {
             user : lConfig.WHATSAPP.user,
             apikey : lConfig.WHATSAPP.key,
