@@ -23,6 +23,14 @@ function getDatabaseFromLocalization(pLocate)
             return 'spain';
         break;
 
+        case 'china':
+            return 'hong_kong';
+        break;
+
+        case 'suisse':
+            return 'suisse';
+        break;
+
         case 'france':
         default:
             return 'france_2';
